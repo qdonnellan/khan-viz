@@ -1,8 +1,13 @@
-var setUp = function() {
-    background(0,0,0);
-    stroke(50, 50, 50);
-    strokeWeight(1);
-    line(0,200,400,200);
+var Field = function() {
+    this.draw = function() {
+        // The background.
+        background(0,0,0);
+    
+        // Dividing line between star and light curve.
+        stroke(50, 50, 50);
+        strokeWeight(1);
+        line(0,200,400,200);
+    };
 };
 
 var Star = function() {
@@ -27,41 +32,64 @@ var Planet = function() {
         ellipse(self.x, self.y, self.size, self.size);
     };
     
-    self.illuminate = function(percent) {
+    self.illuminate = function(degrees) {
+        // Illuminate the planet based on it's orbital position
+        // 0 degrees = far left side of star; 
+        // 180 degrees = far right side of star;
         noStroke();
         fill(255, 255, 255);
         
-        var illuminated_size;
-        arc(self.x,self.y, self.size, self.size, -90, 90);
-        
-        // Cover up arch
-        if (percent > 50) {
+        if ( degrees < 90 || degrees > 270) {
+            // Illuminate the right half of the planet when the planet
+            // is on the left side of the star.
+            arc(self.x,self.y, self.size, self.size, -90, 90);
+        } else {
+            // Illuminate the left half of the planet when the planet
+            // is on the right side of the star.
+            arc(self.x,self.y, self.size, self.size, 90, 270);
+        }
+
+        if (degrees >= 180) {
             fill(255, 255, 255);
-            illuminated_size = ((percent-50)/100)*self.size;
+            
         } else {
             fill(self.color);
-            illuminated_size = ((50-percent)/50)*self.size;
+            
         }
-        ellipse(self.x, self.y, illuminated_size, self.size);
+        var cover_ellipse_percent = 1 - abs(degrees % 180 - 90)/90;
+        ellipse(self.x, self.y, cover_ellipse_percent*self.size, self.size);
+
     };
     
 };
 
 
-setUp();
+var field = new Field();
+field.draw();
 
-var star = new Star();
+var star = new Star(); 
 var planet = new Planet();
+planet.draw();
+
 
 frameRate(100);
-var n = 0;
+var step = 0 ;
 
 draw = function() {
-    var animation_percent = n % 100;
-    planet.illuminate(animation_percent);
-    n += 1;
+    planet.x = (200-planet.size/2)*sin(step - 90) + 200;
+    field.draw();
+    if (step % 360 > 180) {
+        planet.draw();
+        planet.illuminate(step % 360);
+        star.draw();
+    } else {
+        star.draw();
+        planet.draw();
+        planet.illuminate(step % 360);
+    }
+    
+    step += 1;
+    
+    
 };
-
-
-
 
