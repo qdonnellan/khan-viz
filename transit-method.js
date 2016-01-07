@@ -85,6 +85,8 @@ var LightCurve = function() {
     self.y = self.ymax;
     
     self.plot_point = function(S, P, x) {
+        // TODO: Need to have the light curve repeat once it reaches
+        // the edge of the screen (x > 400);
         strokeWeight(1);
         // First, paint the "old y" a different color
         stroke(28, 18, 168);
