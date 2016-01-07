@@ -80,23 +80,25 @@ var Planet = function() {
 
 var LightCurve = function() {
     var self = this;
-    self.y = 250;
+    self.ymax = 250;
+    self.x = 0;
+    self.y = self.ymax;
     
     self.plot_point = function(S, P, x) {
-        var max_light = Math.PI*pow(S.size/2, 2);
-        var percent_light;
-        if (x % 360 > 180) {
-            var percent_light = 1;
-        } else {
-            var light_blocked = self.area_of_intersection(S, P);
-            var percent_light = (max_light + light_blocked) / max_light;
-        }
-        stroke(171, 7, 171);
         strokeWeight(1);
-        point(x/4, percent_light*self.y);
+        // First, paint the "old y" a different color
+        stroke(28, 18, 168);
+        point(self.x, self.y);
+        
+        // Now get a new point and paint it the "focus" color
+        self.y = self.get_y_value(S, P, x);
+        self.x = x/4;
+        
+        stroke(255, 255, 255);
+        point(self.x, self.y);
     };
     
-    self.get_y_value = function(S,P, x) {
+    self.get_y_value = function(S, P, x) {
         // For a given "x" value, return a "y" value.
         var max_light = Math.PI*pow(S.size/2, 2);
         var percent_light;
@@ -106,7 +108,7 @@ var LightCurve = function() {
             var light_blocked = self.area_of_intersection(S, P);
             var percent_light = (max_light + light_blocked) / max_light;
         }
-        return percent_light*self.y;
+        return percent_light*self.ymax;
     };
     
     self.area_of_intersection = function(S, P) {
@@ -117,9 +119,9 @@ var LightCurve = function() {
         // The distance between the centers.
         var d = sqrt(sq(S.x - P.x) + sq(S.y - P.y));
         
-        if (Rs+Rp < d) {
+        if ((Rs + Rp) < d) {
             return 0;
-        } else if (d + Rp < Rs) {
+        } else if ((d + Rp) < Rs) {
             return sq(P.size)*Math.PI;
         } else {
             angleMode = 'radians';
@@ -163,5 +165,5 @@ draw = function() {
     
     light_curve.plot_point(star, planet, step);
     
-    step += 0.1;
+    step += 0.2;
 }; 
