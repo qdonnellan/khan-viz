@@ -1,3 +1,8 @@
+// Settings.
+var STAR_SIZE = 100;
+var PLANET_SIZE = 20;
+var RATE = 100;
+
 var Field = function() {
     this.draw_once = function() {
         background(0,0,0);
@@ -21,7 +26,7 @@ var Star = function() {
     var self = this;
     self.x = 200;
     self.y = 100;
-    self.size = 150;
+    self.size = STAR_SIZE;
     self.color = color(255, 255, 240);
     
     this.draw = function() {
@@ -37,7 +42,7 @@ var Planet = function() {
     
     self.x = 50;
     self.y = 100;
-    self.size = 40;
+    self.size = PLANET_SIZE;
     
     self.draw = function() {
         noStroke();
@@ -65,16 +70,12 @@ var Planet = function() {
 
         if (degrees >= 180) {
             fill(illuminated_color);
-            
         } else {
             fill(self.color);
-            
         }
         var cover_ellipse_percent = 1 - abs(degrees % 180 - 90)/90;
         ellipse(self.x, self.y, cover_ellipse_percent*self.size, self.size);
-
     };
-    
 };
 
 
@@ -85,8 +86,6 @@ var LightCurve = function() {
     self.y = self.ymax;
     
     self.plot_point = function(S, P, x) {
-        // TODO: Need to have the light curve repeat once it reaches
-        // the edge of the screen (x > 400);
         strokeWeight(1);
         // First, paint the "old y" a different color
         stroke(28, 18, 168);
@@ -94,7 +93,7 @@ var LightCurve = function() {
         
         // Now get a new point and paint it the "focus" color
         self.y = self.get_y_value(S, P, x);
-        self.x = x/4;
+        self.x = x/6;
         
         stroke(255, 255, 255);
         point(self.x, self.y);
@@ -124,7 +123,7 @@ var LightCurve = function() {
         if ((Rs + Rp) < d) {
             return 0;
         } else if ((d + Rp) < Rs) {
-            return sq(P.size)*Math.PI;
+            return sq(Rp)*Math.PI;
         } else {
             angleMode = 'radians';
             var arg1 = sq(Rp)*acos((sq(d)+sq(Rp)-sq(Rs))/(2*d*Rp));
@@ -148,9 +147,8 @@ var star = new Star();
 var planet = new Planet();
 var light_curve = new LightCurve();
 
-frameRate(1000);
+frameRate(RATE);
 var step = 0 ;
-
 
 draw = function() {
     planet.x = (200-planet.size/2)*sin(step - 90) + 200;
@@ -166,6 +164,5 @@ draw = function() {
     }
     
     light_curve.plot_point(star, planet, step);
-    
-    step += 0.2;
+    step += 0.5;
 }; 
