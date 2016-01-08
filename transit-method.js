@@ -6,11 +6,30 @@ var RATE = 100;
 var Field = function() {
     this.draw_once = function() {
         background(0,0,0);
-        strokeWeight(2);
+        
+        // Light Curve axis
+        strokeWeight(1);
         fill(255, 255, 255);
-        text('Light Curve', 10, 220);
-        fill(153, 153, 153);
-        text('Amount of light reaching us as we look at the star', 10, 235);
+        stroke(255, 255, 255);
+        
+        var axis_color = color(180, 180, 180);
+        
+        // "Y" Axis
+        stroke(axis_color);
+        fill(axis_color);
+        line(30, 250, 30, 385);
+        triangle(27, 250, 30, 243, 33, 250);
+        pushMatrix();
+        rotate(-90);
+        translate(-340,-475);
+        text('Intensity', 0, 500);
+        popMatrix();
+        
+        // "X" Axis
+        line(20, 375, 350, 375);
+        triangle(350, 372, 357, 375, 350, 379);
+        text('Time', 180, 390);
+        
     };
 
     this.draw = function() {
@@ -81,8 +100,9 @@ var Planet = function() {
 
 var LightCurve = function() {
     var self = this;
-    self.ymax = 250;
-    self.x = 0;
+    self.ymax = 275;
+    self.xmin = 31;
+    self.x = self.xmin;
     self.y = self.ymax;
     
     self.plot_point = function(S, P, x) {
@@ -93,7 +113,7 @@ var LightCurve = function() {
         
         // Now get a new point and paint it the "focus" color
         self.y = self.get_y_value(S, P, x);
-        self.x = x/6;
+        self.x = x/6 + self.xmin;
         
         stroke(255, 255, 255);
         point(self.x, self.y);
