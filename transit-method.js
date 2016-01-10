@@ -172,7 +172,7 @@ var LightCurve = function() {
      * @param {Object} S - a Star instance.
      * @param {Object} P - a Planet instance.
      * @param {int} x - the current x-value of the Light Curve.
-     */)
+     */
     self.getY = function(S, P, x) {
         var maxLight = Math.PI*pow(S.D/2, 2);
         var percentLight;
@@ -186,7 +186,7 @@ var LightCurve = function() {
             var lightBlocked = self.areaOfIntersection(S, P);
             var percentLight = (maxLight + lightBlocked) / maxLight;
         }
-        return percent_light*self.ymax;
+        return percentLight*self.ymax;
     };
     
     /* 
