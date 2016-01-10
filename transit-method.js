@@ -136,7 +136,9 @@ var Planet = function() {
     };
 };
 
-
+/**
+ * The light curve plot shown at the bottom of the field.
+ */
 var LightCurve = function() {
     var self = this;
     self.ymax = 275;
@@ -144,39 +146,63 @@ var LightCurve = function() {
     self.x = self.xmin;
     self.y = self.ymax;
     
-    self.plot_point = function(S, P, x) {
+    /** 
+     * Plot a point on the light curve. 
+     * @param {Object} S - a Star instance.
+     * @param {Object} P - a Planet instance.
+     * @param {int} x - the current x-value of the Light Curve.
+     */
+    self.plot = function(S, P, x) {
         strokeWeight(1);
-        // First, paint the "old y" a different color
+        
+        /** Cover up previous position with a dark point. */
         stroke(28, 18, 168);
         point(self.x, self.y);
-        
-        // Now get a new point and paint it the "focus" color
-        self.y = self.get_y_value(S, P, x);
-        self.x = x/6 + self.xmin;
-        
+
+        /** Draw the "current" position with a lighter point. */
         stroke(255, 255, 255);
+        self.y = self.getY(S, P, x);
+        self.x = x/6 + self.xmin;
         point(self.x, self.y);
     };
     
-    self.get_y_value = function(S, P, x) {
-        // For a given "x" value, return a "y" value.
-        var max_light = Math.PI*pow(S.D/2, 2);
-        var percent_light;
+    /** 
+     * For a given Star and Planet configuration, determine the correct y-value
+     * for this light curve. 
+     * @param {Object} S - a Star instance.
+     * @param {Object} P - a Planet instance.
+     * @param {int} x - the current x-value of the Light Curve.
+     */)
+    self.getY = function(S, P, x) {
+        var maxLight = Math.PI*pow(S.D/2, 2);
+        var percentLight;
         if (x % 360 > 180) {
-            var percent_light = 1;
+            /**
+             * If the planet is on the far side of the star, it isn't blocking
+             * any light.
+             */
+            var percentLight = 1;
         } else {
-            var light_blocked = self.area_of_intersection(S, P);
-            var percent_light = (max_light + light_blocked) / max_light;
+            var lightBlocked = self.areaOfIntersection(S, P);
+            var percentLight = (maxLight + lightBlocked) / maxLight;
         }
         return percent_light*self.ymax;
     };
     
-    self.area_of_intersection = function(S, P) {
-        // Find the total area of intersection between a Star (S) and a Planet (P).
+    /* 
+     * Determine the apparent intersections of the Planet's and Star's discs, 
+     * based on their current positions and sizes.
+     * Uses this method: 
+     *     http://mathworld.wolfram.com/Circle-CircleIntersection.html
+     *
+     * @param {Object} S - a Star instance.
+     * @param {Object} P - a Planet instance.
+     */
+    self.areaOfIntersection = function(S, P) {
         var Rs = S.D/2;
         var Rp = P.D/2;
         
-        // The distance between the centers.
+        /** The distance between the centers. */
         var d = sqrt(sq(S.x - P.x) + sq(S.y - P.y));
         
         if ((Rs + Rp) < d) {
@@ -191,25 +217,21 @@ var LightCurve = function() {
             angleMode = 'degrees';
             return arg1 + arg2 - arg3;
         }
-        
     };
-    
-    
-
 };
 
 
+/** Initiate the animation. */
 var field = new Field();
 var star = new Star(); 
 var planet = new Planet();
 var light_curve = new LightCurve();
 
-
 field.drawOnce();
-
 frameRate(RATE);
 var step = 0;
 
+/** Animate! */
 draw = function() {
     planet.x = (200-planet.D/2)*sin(step - 90) + 200;
     field.draw();
@@ -223,6 +245,6 @@ draw = function() {
         planet.illuminate(step % 360);
     }
     
-    light_curve.plot_point(star, planet, step);
+    light_curve.plot(star, planet, step);
     step += 0.5;
 }; 
