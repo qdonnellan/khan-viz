@@ -5,7 +5,7 @@
  *  as the planet passes between us (Earth) and it's parent star.
  */
 var STAR_DIAMETER = 200;
-var PLANET_SIZE = 50;
+var PLANET_DIAMETER = 50;
 
 var RATE = 1000;
 
@@ -82,35 +82,40 @@ var Star = function() {
 };
 
 
+/** The Planet shows in the animation.
+ *
+ */
 var Planet = function() {
     var self = this;
-    self.color = color(10, 13, 46);
     
     self.x = 50;
     self.y = 100;
-    self.size = PLANET_SIZE;
+    self.D = PLANET_DIAMETER;
+    self.color = color(10, 13, 46);
     
+    /** Draw this planet as part of the animation. */
     self.draw = function() {
         noStroke();
         fill(self.color);
-        ellipse(self.x, self.y, self.size, self.size);
+        ellipse(self.x, self.y, self.D, self.D);
     };
     
+    /**
+     * Illuminate the planet based on it's orbital position.
+     * @param {float} degrees - the oribital position of the planet
+     */
     self.illuminate = function(degrees) {
-        // Illuminate the planet based on it's orbital position
-        // 0 degrees = far left side of star; 
-        // 180 degrees = far right side of star;
         noStroke();
         var illuminated_color = color(136, 212, 235);
         fill(illuminated_color);
         
+        /** 
+         * If the planet is on the "right" of the star, illuminate the left
+         * side of the planet (and vice-versa).
+         */
         if ( degrees < 90 || degrees > 270) {
-            // Illuminate the right half of the planet when the planet
-            // is on the left side of the star.
             arc(self.x,self.y, self.size, self.size, -90, 90);
         } else {
-            // Illuminate the left half of the planet when the planet
-            // is on the right side of the star.
             arc(self.x,self.y, self.size, self.size, 90, 270);
         }
 
@@ -119,6 +124,13 @@ var Planet = function() {
         } else {
             fill(self.color);
         }
+
+        /**
+         * Drawing an "arc" is not sufficient to show an accurately illuminated
+         * planet; we also need to cover the planet with an ellipse. That
+         * ellipse is dark on the near side of the star, and "bright" on the
+         * far side of the star.
+         */
         var cover_ellipse_percent = 1 - abs(degrees % 180 - 90)/90;
         ellipse(self.x, self.y, cover_ellipse_percent*self.size, self.size);
     };
@@ -162,7 +174,7 @@ var LightCurve = function() {
     self.area_of_intersection = function(S, P) {
         // Find the total area of intersection between a Star (S) and a Planet (P).
         var Rs = S.D/2;
-        var Rp = P.size/2;
+        var Rp = P.D/2;
         
         // The distance between the centers.
         var d = sqrt(sq(S.x - P.x) + sq(S.y - P.y));
@@ -199,7 +211,7 @@ frameRate(RATE);
 var step = 0;
 
 draw = function() {
-    planet.x = (200-planet.size/2)*sin(step - 90) + 200;
+    planet.x = (200-planet.D/2)*sin(step - 90) + 200;
     field.draw();
     if (step % 360 > 180) {
         planet.draw();
