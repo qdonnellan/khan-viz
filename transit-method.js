@@ -1,44 +1,62 @@
-// Settings.
-var STAR_SIZE = 100;
-var PLANET_SIZE = 20;
-var RATE = 100;
+/** 
+ *  Transit Method
+ *  A visauzliation of an exosolar planet "transiting" a distant star
+ *  and a similated light curve which shows the broghtness of that star
+ *  as the planet passes between us (Earth) and it's parent star.
+ */
+var STAR_SIZE = 200;
+var PLANET_SIZE = 50;
+var RATE = 1000;
+var AXIS_COLOR = color(255, 255, 255);
 
+
+/**
+ * Field is the background of the animation.
+ */
 var Field = function() {
-    this.draw_once = function() {
+    var self = this;
+
+    /** Draws the starting background. Only call this once. */
+    self.drawOnce = function() {
         background(0,0,0);
-        
-        // Light Curve axis
+        self.yAxis();
+        self.xAxis();
+    };
+
+    /** Draw repaints part of the field to cover up old animations. */
+    self.draw = function() {
+        fill(0, 0, 0);
+        stroke(0,0,0);
+        strokeWeight(0);
+        rect(0,0,400,200);
+    };
+
+    /** Draw the y-axis of the Light Curve. */
+    self.yAxis = function() {
         strokeWeight(1);
-        fill(255, 255, 255);
-        stroke(255, 255, 255);
-        
-        var axis_color = color(180, 180, 180);
-        
-        // "Y" Axis
-        stroke(axis_color);
-        fill(axis_color);
-        line(30, 250, 30, 385);
+        fill(AXIS_COLOR);
+        stroke(AXIS_COLOR);
+        line(30, 250, 30, 375);
         triangle(27, 250, 30, 243, 33, 250);
         pushMatrix();
         rotate(-90);
         translate(-340,-475);
         text('Intensity', 0, 500);
         popMatrix();
-        
-        // "X" Axis
-        line(20, 375, 350, 375);
-        triangle(350, 372, 357, 375, 350, 379);
-        text('Time', 180, 390);
-        
     };
 
-    this.draw = function() {
-        // The background.
-        fill(0, 0, 0);
-        stroke(0,0,0);
-        strokeWeight(0);
-        rect(0,0,400,200);
+    /** Draw the x-axis of the Light Curve. */
+    self.xAxis = function() {
+        strokeWeight(1);
+        fill(AXIS_COLOR);
+        stroke(AXIS_COLOR);
+        line(30, 375, 350, 375);
+        triangle(350, 372, 357, 375, 350, 379);
+        text('Time', 175, 390);
     };
+        
+
+
 };
 
 var Star = function() {
@@ -161,14 +179,15 @@ var LightCurve = function() {
 
 
 var field = new Field();
-field.draw_once();
-
 var star = new Star(); 
 var planet = new Planet();
 var light_curve = new LightCurve();
 
+
+field.drawOnce();
+
 frameRate(RATE);
-var step = 0 ;
+var step = 0;
 
 draw = function() {
     planet.x = (200-planet.size/2)*sin(step - 90) + 200;
