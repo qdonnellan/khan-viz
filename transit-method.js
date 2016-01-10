@@ -114,9 +114,9 @@ var Planet = function() {
          * side of the planet (and vice-versa).
          */
         if ( degrees < 90 || degrees > 270) {
-            arc(self.x,self.y, self.size, self.size, -90, 90);
+            arc(self.x,self.y, self.D, self.D, -90, 90);
         } else {
-            arc(self.x,self.y, self.size, self.size, 90, 270);
+            arc(self.x,self.y, self.D, self.D, 90, 270);
         }
 
         if (degrees >= 180) {
@@ -132,7 +132,7 @@ var Planet = function() {
          * far side of the star.
          */
         var coverEllipsePercent = 1 - abs(degrees % 180 - 90)/90;
-        ellipse(self.x, self.y, coverEllipsePercent*self.size, self.size);
+        ellipse(self.x, self.y, coverEllipsePercent*self.D, self.D);
     };
 };
 
