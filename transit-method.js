@@ -4,9 +4,11 @@
  *  and a similated light curve which shows the broghtness of that star
  *  as the planet passes between us (Earth) and it's parent star.
  */
-var STAR_SIZE = 200;
+var STAR_DIAMETER = 200;
 var PLANET_SIZE = 50;
+
 var RATE = 1000;
+
 var AXIS_COLOR = color(255, 255, 255);
 
 
@@ -59,19 +61,26 @@ var Field = function() {
 
 };
 
+
+/**
+ * The Star shown in the animation.
+ */
 var Star = function() {
     var self = this;
+
     self.x = 200;
     self.y = 100;
-    self.size = STAR_SIZE;
+    self.D = STAR_DIAMETER;
     self.color = color(255, 255, 240);
     
-    this.draw = function() {
+    /** Draw the Star on the plane as part of the animation. */
+    self.draw = function() {
         fill(self.color);
         noStroke();
-        ellipse(self.x,self.y,self.size,self.size);
+        ellipse(self.x, self.y, self.D, self.D);
     };
 };
+
 
 var Planet = function() {
     var self = this;
@@ -139,7 +148,7 @@ var LightCurve = function() {
     
     self.get_y_value = function(S, P, x) {
         // For a given "x" value, return a "y" value.
-        var max_light = Math.PI*pow(S.size/2, 2);
+        var max_light = Math.PI*pow(S.D/2, 2);
         var percent_light;
         if (x % 360 > 180) {
             var percent_light = 1;
@@ -152,7 +161,7 @@ var LightCurve = function() {
     
     self.area_of_intersection = function(S, P) {
         // Find the total area of intersection between a Star (S) and a Planet (P).
-        var Rs = S.size/2;
+        var Rs = S.D/2;
         var Rp = P.size/2;
         
         // The distance between the centers.
