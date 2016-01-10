@@ -106,8 +106,8 @@ var Planet = function() {
      */
     self.illuminate = function(degrees) {
         noStroke();
-        var illuminated_color = color(136, 212, 235);
-        fill(illuminated_color);
+        var illuminatedColor = color(136, 212, 235);
+        fill(illuminatedColor);
         
         /** 
          * If the planet is on the "right" of the star, illuminate the left
@@ -120,7 +120,7 @@ var Planet = function() {
         }
 
         if (degrees >= 180) {
-            fill(illuminated_color);
+            fill(illuminatedColor);
         } else {
             fill(self.color);
         }
@@ -131,8 +131,8 @@ var Planet = function() {
          * ellipse is dark on the near side of the star, and "bright" on the
          * far side of the star.
          */
-        var cover_ellipse_percent = 1 - abs(degrees % 180 - 90)/90;
-        ellipse(self.x, self.y, cover_ellipse_percent*self.size, self.size);
+        var coverEllipsePercent = 1 - abs(degrees % 180 - 90)/90;
+        ellipse(self.x, self.y, coverEllipsePercent*self.size, self.size);
     };
 };
 
