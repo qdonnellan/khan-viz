@@ -162,7 +162,7 @@ var LightCurve = function() {
         /** Draw the "current" position with a lighter point. */
         stroke(255, 255, 255);
         self.y = self.getY(S, P, x);
-        self.x = x/6 + self.xmin;
+        self.x = (x/2 % 360 + self.xmin);
         point(self.x, self.y);
     };
     
