@@ -1,16 +1,33 @@
 /** 
- *  Transit Method
- *  A visauzliation of an exosolar planet "transiting" a distant star
- *  and a similated light curve which shows the broghtness of that star
- *  as the planet passes between us (Earth) and it's parent star.
+ * Transit Method
+ * A visauzliation of an exosolar planet "transiting" a distant star
+ * and a similated light curve which shows the brightness of that star
+ * as the planet passes between us (Earth) and it's parent star.
+ * 
+ * Some Assumptions:
+ * - The planet's orbit is perfectly circular
+ * - The Star's intensity is uniform across it's apparent "disc" (In reality,
+ *   because the star is spherical it's apparent brightness is greater
+ *   toward the center of it's "disc")
+ * - The Star's intensity does not fluxtuate
+ * - There are no other light sources (and we don't count the light reflecting
+ *   off the planet)
+ *
+ * Configuration - feel free to modify these values.
+ * @param {int} STAR_DIAMETER - the diameter of the star
+ * @param {int} PLANET_DIAMETER - the diameter of the planet
+ * @param {int} AXIS_MAGNIFICATION - the "zoom" on the y-axis
+ * @param {int} RATE - how fast the animation should run
  */
-var STAR_DIAMETER = 200;
-var PLANET_DIAMETER = 50;
+var STAR_DIAMETER = 100;
+var PLANET_DIAMETER = 20;
+var AXIS_MAGNIFICATION = 1;
+var RATE = 2000;
 
-var RATE = 1000;
-
-var AXIS_COLOR = color(255, 255, 255);
-
+/** These values below should probably not be changed. */
+var AXIS_COLOR = color(217, 217, 217);
+var Y_AXIS_TOP = 275;
+var Y_AXIS_BOTTOM = 380;
 
 /**
  * Field is the background of the animation.
@@ -38,13 +55,25 @@ var Field = function() {
         strokeWeight(1);
         fill(AXIS_COLOR);
         stroke(AXIS_COLOR);
-        line(30, 250, 30, 375);
+        line(30, 250, 30, Y_AXIS_BOTTOM);
         triangle(27, 250, 30, 243, 33, 250);
-        pushMatrix();
-        rotate(-90);
-        translate(-340,-475);
-        text('Intensity', 0, 500);
-        popMatrix();
+        
+        /** Put a tick mark at 100%. */
+        text('1.00', 2, 279);
+        line(27, 275, 30, 275);
+        
+        /** Put another tick mark one-third of the way down. */
+        var heightOfAxis = Y_AXIS_BOTTOM - Y_AXIS_TOP;
+        var thirdDown = heightOfAxis/3 + Y_AXIS_TOP;
+        line(27, thirdDown, 30, thirdDown);
+        var thirdDownAmount = 1 - (1/3)/AXIS_MAGNIFICATION;
+        text(thirdDownAmount.toFixed(2), 2, thirdDown + 4);
+        
+        /** Put another tick mark two-thirds of the way down. */
+        var twoThirdsDown = 2*heightOfAxis/3 + Y_AXIS_TOP;
+        line(27, twoThirdsDown, 30, twoThirdsDown);
+        var twoThirdsDownAmount = 1 - (2/3)/AXIS_MAGNIFICATION;
+        text(twoThirdsDownAmount.toFixed(2), 2, twoThirdsDown + 4);
     };
 
     /** Draw the x-axis of the Light Curve. */
@@ -52,12 +81,10 @@ var Field = function() {
         strokeWeight(1);
         fill(AXIS_COLOR);
         stroke(AXIS_COLOR);
-        line(30, 375, 350, 375);
-        triangle(350, 372, 357, 375, 350, 379);
-        text('Time', 175, 390);
+        line(30, Y_AXIS_BOTTOM, 350, Y_AXIS_BOTTOM);
+        triangle(350, Y_AXIS_BOTTOM-3, 357, Y_AXIS_BOTTOM, 350, Y_AXIS_BOTTOM+3);
+        text('Time', 175, Y_AXIS_BOTTOM + 13);
     };
-        
-
 
 };
 
@@ -75,6 +102,7 @@ var Star = function() {
     
     /** Draw the Star on the plane as part of the animation. */
     self.draw = function() {
+        self.D = STAR_DIAMETER;
         fill(self.color);
         noStroke();
         ellipse(self.x, self.y, self.D, self.D);
@@ -96,6 +124,7 @@ var Planet = function() {
     /** Draw this planet as part of the animation. */
     self.draw = function() {
         noStroke();
+        self.D = PLANET_DIAMETER;
         fill(self.color);
         ellipse(self.x, self.y, self.D, self.D);
     };
@@ -136,13 +165,25 @@ var Planet = function() {
     };
 };
 
+
+/** The distance formula */
+var distanceFormula = function(x1, y1, x2, y2) {
+    return sqrt(sq(x1 - x2) + sq(y1 - y2));
+};
+
+/** Area of a circle */
+var circleArea = function(r) {
+    return sq(r)*Math.PI;
+};
+
 /**
  * The light curve plot shown at the bottom of the field.
  */
 var LightCurve = function() {
     var self = this;
-    self.ymax = 275;
-    self.xmin = 31;
+    self.ymax = Y_AXIS_TOP;
+    self.ymin = Y_AXIS_BOTTOM;
+    self.xmin = 32;
     self.x = self.xmin;
     self.y = self.ymax;
     
@@ -156,13 +197,13 @@ var LightCurve = function() {
         strokeWeight(1);
         
         /** Cover up previous position with a dark point. */
-        stroke(28, 18, 168);
+        stroke(46, 41, 138);
         point(self.x, self.y);
 
         /** Draw the "current" position with a lighter point. */
         stroke(255, 255, 255);
         self.y = self.getY(S, P, x);
-        self.x = (x/2 % 360 + self.xmin);
+        self.x = ((x/4 % 360))/(1.2) + self.xmin;
         point(self.x, self.y);
     };
     
@@ -174,22 +215,22 @@ var LightCurve = function() {
      * @param {int} x - the current x-value of the Light Curve.
      */
     self.getY = function(S, P, x) {
-        var maxLight = Math.PI*pow(S.D/2, 2);
+        var maxLight = circleArea(S.D/2);
         var percentLight;
         if (x % 360 > 180) {
             /**
              * If the planet is on the far side of the star, it isn't blocking
              * any light.
              */
-            var percentLight = 1;
+            var percentLight = 0;
         } else {
             var lightBlocked = self.areaOfIntersection(S, P);
-            var percentLight = (maxLight + lightBlocked) / maxLight;
+            var percentLight = lightBlocked / maxLight;
         }
-        return percentLight*self.ymax;
+        return AXIS_MAGNIFICATION*percentLight*(self.ymin-self.ymax) + self.ymax;
     };
     
-    /* 
+    /** 
      * Determine the apparent intersections of the Planet's and Star's discs, 
      * based on their current positions and sizes.
      * Uses this method: 
@@ -203,12 +244,12 @@ var LightCurve = function() {
         var Rp = P.D/2;
         
         /** The distance between the centers. */
-        var d = sqrt(sq(S.x - P.x) + sq(S.y - P.y));
+        var d = distanceFormula(S.x, S.y, P.x, P.y);
         
         if ((Rs + Rp) < d) {
             return 0;
         } else if ((d + Rp) < Rs) {
-            return sq(Rp)*Math.PI;
+            return circleArea(Rp);
         } else {
             angleMode = 'radians';
             var arg1 = sq(Rp)*acos((sq(d)+sq(Rp)-sq(Rs))/(2*d*Rp));
@@ -221,7 +262,10 @@ var LightCurve = function() {
 };
 
 
-/** Initiate the animation. */
+/** 
+ * Initiate the animation by creating new instanecs of the Field, 
+ * Star, Planet and LightCurve.
+ */
 var field = new Field();
 var star = new Star(); 
 var planet = new Planet();
