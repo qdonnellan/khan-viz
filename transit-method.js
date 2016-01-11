@@ -21,7 +21,7 @@
  */
 var STAR_DIAMETER = 100;
 var PLANET_DIAMETER = 20;
-var AXIS_MAGNIFICATION = 1;
+var AXIS_MAGNIFICATION = 10;
 var RATE = 2000;
 
 /** These values below should probably not be changed. */
@@ -40,6 +40,7 @@ var Field = function() {
         background(0,0,0);
         self.yAxis();
         self.xAxis();
+        self.title();
     };
 
     /** Draw repaints part of the field to cover up old animations. */
@@ -48,6 +49,12 @@ var Field = function() {
         stroke(0,0,0);
         strokeWeight(0);
         rect(0,0,400,200);
+    };
+    
+    /** Draw the title of the Light Curve .*/
+    self.title = function() {
+        fill(255, 255, 255);
+        text('Intensity vs. Time', 150, 230);
     };
 
     /** Draw the y-axis of the Light Curve. */
